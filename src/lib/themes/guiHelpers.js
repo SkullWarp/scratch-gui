@@ -270,6 +270,10 @@ const applyWallpaper = wallpaper => {
 const applyGuiColors = theme => {
     const doc = document.documentElement;
 
+    if (!Theme.defaults || !Theme.defaults.light || !theme?.getGuiColors) {
+        return;
+    }
+
     const defaultGuiColors = (Theme.defaults && Theme.defaults.light &&
                               typeof Theme.defaults.light.getGuiColors === 'function') ?
         Theme.defaults.light.getGuiColors() :

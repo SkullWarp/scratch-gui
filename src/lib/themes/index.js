@@ -4,7 +4,7 @@ import * as blocksThree from './blocks/three';
 import * as blocksHighContrast from './blocks/high-contrast';
 import * as blocksDark from './blocks/dark';
 
-import {ACCENT_MAP, ACCENT_DEFAULT} from './accents';
+import {ACCENT_MAP as ACCENT_MAP_DEFAULT, ACCENT_DEFAULT} from './accents';
 import {GUI_MAP, GUI_DEFAULT} from './gui';
 import {MENUBAR_ALIGN, MENUBAR_ALIGN_DEFAULT} from './menubar';
 
@@ -55,7 +55,7 @@ class Theme {
         /** @readonly */
         this.id = ++themeObjectsCreated;
         /** @readonly */
-        this.accent = Object.prototype.hasOwnProperty.call(ACCENT_MAP, accent) ? accent : ACCENT_DEFAULT;
+        this.accent = Object.prototype.hasOwnProperty.call(ACCENT_MAP_DEFAULT, accent) ? accent : ACCENT_DEFAULT;
         /** @readonly */
         this.gui = Object.prototype.hasOwnProperty.call(GUI_MAP, gui) ? gui : GUI_DEFAULT;
         /** @readonly */
@@ -103,7 +103,7 @@ class Theme {
     getGuiColors () {
         return defaultsDeep(
             {},
-            ACCENT_MAP[this.accent].guiColors,
+            ACCENT_MAP_DEFAULT[this.accent].guiColors,
             GUI_MAP[this.gui].guiColors,
             BLOCKS_MAP[this.blocks].colors
         );
@@ -112,7 +112,7 @@ class Theme {
     getBlockColors () {
         return defaultsDeep(
             {},
-            ACCENT_MAP[this.accent].blockColors,
+            ACCENT_MAP_DEFAULT[this.accent].blockColors,
             GUI_MAP[this.gui].blockColors,
             BLOCKS_MAP[this.blocks].colors
         );
@@ -140,11 +140,10 @@ class Theme {
 const keys = Object.keys(GUI_MAP);
 for (const key of keys) {
     Theme.defaults[key] = new Theme(
-        ACCENT_DEFAULT, key, BLOCKS_DEFAULT, MENUBAR_ALIGN_DEFAULT,
-        {url: '', opacity: 0.3, darkness: 0, gridVisible: true, history: []},
-        {system: [], google: [], history: []},
+        'gay', key, BLOCKS_DEFAULT, MENUBAR_ALIGN_DEFAULT,
+        {url: 'https://avatars.githubusercontent.com/u/252668387?s=200&v=4', opacity: 0.3, darkness: 0, gridVisible: true, history: []},
+        {system: [], google: ["Playfair Display"], history: ["Playfair Display"]},
         GUI_MAP[key].name
-        
     );
 }
 
@@ -152,7 +151,7 @@ export {
     Theme,
     defaultBlockColors,
 
-    ACCENT_MAP,
+    ACCENT_MAP_DEFAULT as ACCENT_MAP,
     GUI_MAP,
     MENUBAR_ALIGN,
 

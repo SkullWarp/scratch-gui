@@ -15,7 +15,20 @@ import TWMenuBarAlignMenu from './tw-menubar-align.jsx';
 import TWCustomThemeMenu from './tw-theme-custom.jsx';
 import TWDesktopSettings from './tw-desktop-settings.jsx';
 
+/*
 import {Palette} from 'lucide-react';
+*/
+
+
+export const iconfr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+
+const Palette = iconfr;
 
 import menuBarStyles from './menu-bar.css';
 import styles from './settings-menu.css';

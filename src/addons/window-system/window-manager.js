@@ -38,19 +38,28 @@ class AddonWindow {
         this.className = options.className || '';
         this.destroyOnMinimize = options.destroyOnMinimize || false;
         this.alwaysOnTop = options.alwaysOnTop || false;
-        
+
+        // Auto-close / countdown timer
+        // If provided (> 0), the window will automatically close after this many ms,
+        // and a countdown will appear in the top-right of the header.
+        this.autoCloseMs = (typeof options.autoCloseMs === 'number') ? options.autoCloseMs : null;
+        this.closeAt = null;
+        this.countdownIntervalId = null;
+        this.autoCloseTimeoutId = null;
+        this.timerElement = null;
+
         this.isVisible = false;
         this.isMinimized = false;
         this.isMaximized = false;
         this.zIndex = this.alwaysOnTop ? ++nextOnTopZIndex : ++nextZIndex;
-        
+
         this.onClose = options.onClose || (() => {});
         this.onMinimize = options.onMinimize || (() => {});
         this.onMaximize = options.onMaximize || (() => {});
         this.onRestore = options.onRestore || (() => {});
         this.onResize = options.onResize || (() => {});
         this.onMove = options.onMove || (() => {});
-        
+
         this.element = null;
         this.headerElement = null;
         this.contentElement = null;
@@ -58,11 +67,13 @@ class AddonWindow {
         this.isResizing = false;
         this.dragOffset = {x: 0, y: 0};
         this.savedState = null; // For maximize/restore
-        
+
         this.createWindow();
         activeWindows.set(this.id, this);
+
+        this.initAutoCloseCountdown();
     }
-    
+
     createWindow () {
         // Create main window element
         this.element = document.createElement('div');
@@ -89,9 +100,9 @@ class AddonWindow {
             backdrop-filter: blur(20px);
             transition: none !important;
         `;
-        
+
         this.element.addEventListener('mousedown', () => this.bringToFront());
-        
+
         // Add focus enhancement when window becomes active
         this.element.addEventListener('mouseenter', () => {
             if (this.isVisible) {
@@ -102,7 +113,7 @@ class AddonWindow {
                 `;
             }
         });
-        
+
         this.element.addEventListener('mouseleave', () => {
             if (this.isVisible && !this.isDragging && !this.isResizing) {
                 this.element.style.boxShadow = `
@@ -112,7 +123,7 @@ class AddonWindow {
                 `;
             }
         });
-        
+
         // Create header
         this.headerElement = document.createElement('div');
         this.headerElement.className = 'addon-window-header';
@@ -133,7 +144,7 @@ class AddonWindow {
             position: relative;
             overflow: hidden;
         `;
-        
+
         // Add subtle header gradient overlay
         const headerOverlay = document.createElement('div');
         headerOverlay.style.cssText = `
@@ -149,7 +160,7 @@ class AddonWindow {
             pointer-events: none;
         `;
         this.headerElement.appendChild(headerOverlay);
-        
+
         // Title
         const titleElement = document.createElement('div');
         titleElement.className = 'addon-window-title';
@@ -165,7 +176,7 @@ class AddonWindow {
             text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
             z-index: 1;
         `;
-        
+
         // Controls
         const controlsElement = document.createElement('div');
         controlsElement.className = 'addon-window-controls';
@@ -176,22 +187,45 @@ class AddonWindow {
             z-index: 1;
             overflow: hidden;
         `;
-        
+
+        // Countdown timer (top-right, before window buttons)
+        this.timerElement = document.createElement('div');
+        this.timerElement.className = 'addon-window-timer';
+        this.timerElement.textContent = '—';
+        this.timerElement.style.cssText = `
+            font-variant-numeric: tabular-nums;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary, #666);
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            line-height: 1;
+            user-select: none;
+            cursor: default;
+            max-width: 140px;
+            white-space: nowrap;
+        `;
+        // Prevent drag initiation when clicking/hovering timer
+        this.timerElement.addEventListener('mousedown', e => e.stopPropagation());
+        controlsElement.appendChild(this.timerElement);
+
         // Control buttons
         if (this.maximizable) {
             const maximizeBtn = this.createControlButton('maximize', 'Maximize', () => this.toggleMaximize());
             this.maximizeBtn = maximizeBtn; // Store reference to update icon when maximized
             controlsElement.appendChild(maximizeBtn);
         }
-        
+
         if (this.closable) {
             const closeBtn = this.createControlButton('close', 'Close', () => this.close());
             controlsElement.appendChild(closeBtn);
         }
-        
+
         this.headerElement.appendChild(titleElement);
         this.headerElement.appendChild(controlsElement);
-        
+
         // Create content area
         this.contentElement = document.createElement('div');
         this.contentElement.className = 'addon-window-content';
@@ -213,30 +247,105 @@ class AddonWindow {
             scrollbar-width: thin;
             scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
         `;
-        
+
         // Add custom scrollbar styling
         this.addScrollbarStyling(this.contentElement);
-        
+
         this.element.appendChild(this.headerElement);
         this.element.appendChild(this.contentElement);
-        
+
         // Add resize handles if resizable
         if (this.resizable) {
             this.addResizeHandles();
         }
-        
+
         // Add drag functionality
         this.addDragFunctionality();
-        
+
         // Add to DOM
-        document.body.appendChild(this.element);
+        document.body.appendChild(this.element)
     }
-    
+
+    // --- Auto-close / countdown timer helpers ---
+
+    initAutoCloseCountdown () {
+        // Always show the timer element; only start counting if autoCloseMs is valid.
+        if (!this.timerElement) return;
+
+        this.clearAutoCloseCountdown();
+
+        if (typeof this.autoCloseMs !== 'number' || !Number.isFinite(this.autoCloseMs) || this.autoCloseMs <= 0) {
+            this.closeAt = null;
+            this.timerElement.textContent = '—';
+            this.timerElement.title = 'No auto-close timer';
+            return;
+        }
+
+        this.closeAt = Date.now() + this.autoCloseMs;
+
+        // Close when time is up
+        this.autoCloseTimeoutId = window.setTimeout(() => {
+            // Avoid double-close if already destroyed/removed
+            if (activeWindows.get(this.id) === this) {
+                this.close();
+            }
+        }, this.autoCloseMs);
+
+        // Update the display while counting down
+        this.updateAutoCloseCountdownLabel();
+        this.countdownIntervalId = window.setInterval(() => {
+            this.updateAutoCloseCountdownLabel();
+        }, 250);
+    }
+
+    clearAutoCloseCountdown () {
+        if (this.countdownIntervalId) {
+            window.clearInterval(this.countdownIntervalId);
+            this.countdownIntervalId = null;
+        }
+        if (this.autoCloseTimeoutId) {
+            window.clearTimeout(this.autoCloseTimeoutId);
+            this.autoCloseTimeoutId = null;
+        }
+    }
+
+    updateAutoCloseCountdownLabel () {
+        if (!this.timerElement || !this.closeAt) return;
+
+        const remainingMs = Math.max(0, this.closeAt - Date.now());
+        this.timerElement.textContent = this.formatCountdown(remainingMs);
+        this.timerElement.title = `Closes in ${this.formatCountdown(remainingMs)}`;
+
+        // If we hit zero, let the timeout handle the close; stop updating to avoid churn.
+        if (remainingMs <= 0) {
+            this.clearAutoCloseCountdown();
+        }
+    }
+
+    formatCountdown (ms) {
+        const totalSeconds = Math.ceil(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        const pad2 = n => String(n).padStart(2, '0');
+
+        if (hours > 0) return `${hours}:${pad2(minutes)}:${pad2(seconds)}`;
+        return `${pad2(minutes)}:${pad2(seconds)}`;
+    }
+
+    // Public helper if callers want to (re)set the timer after creation
+    setAutoCloseMs (ms) {
+        this.autoCloseMs = ms;
+        this.initAutoCloseCountdown();
+        return this;
+    }
+
     createControlButton (type, title, onClick) {
         const button = document.createElement('button');
         button.title = title;
         button.className = `addon-window-btn addon-window-btn-${type}`;
-        
+
         // Create SVG icon based on button type
         let svgIcon = '';
         switch (type) {
@@ -261,9 +370,9 @@ class AddonWindow {
                 </svg>`;
             break;
         }
-        
+
         button.innerHTML = svgIcon;
-        
+
         // Modern button styling
         button.style.cssText = `
             background: transparent;
@@ -283,7 +392,7 @@ class AddonWindow {
             margin: 0;
             padding: 0;
         `;
-        
+
         // Add shimmer effect
         const shimmer = document.createElement('div');
         shimmer.style.cssText = `
@@ -300,7 +409,7 @@ class AddonWindow {
             pointer-events: none;
         `;
         button.appendChild(shimmer);
-        
+
         // Hover effects
         button.addEventListener('mouseenter', () => {
             if (type === 'close') {
@@ -316,7 +425,7 @@ class AddonWindow {
             }
             shimmer.style.left = '100%';
         });
-        
+
         button.addEventListener('mouseleave', () => {
             button.style.background = 'transparent';
             button.style.color = 'var(--text-primary, #666)';
@@ -324,34 +433,34 @@ class AddonWindow {
             button.style.boxShadow = 'none';
             shimmer.style.left = '-100%';
         });
-        
+
         button.addEventListener('mousedown', e => {
             e.stopPropagation();
             button.style.transform = 'scale(0.95)';
         });
-        
+
         button.addEventListener('mouseup', () => {
             button.style.transform = 'scale(1.05)';
         });
-        
+
         button.addEventListener('click', e => {
             e.stopPropagation();
             onClick();
         });
-        
+
         // Focus handling for accessibility
         button.addEventListener('focus', () => {
             button.style.outline = '2px solid var(--looks-secondary, #4C97FF)';
             button.style.outlineOffset = '2px';
         });
-        
+
         button.addEventListener('blur', () => {
             button.style.outline = 'none';
         });
-        
+
         return button;
     }
-    
+
     updateMaximizeButton () {
         if (this.maximizeBtn) {
             const svgIcon = this.isMaximized ?
@@ -372,33 +481,33 @@ class AddonWindow {
     addDragFunctionality () {
         this.headerElement.addEventListener('mousedown', e => {
             if (e.target.tagName === 'BUTTON') return;
-            
+
             this.isDragging = true;
             this.bringToFront();
-            
+
             // Get the current position of the window
             const currentX = parseInt(this.element.style.left, 10) || this.x;
             const currentY = parseInt(this.element.style.top, 10) || this.y;
-            
+
             // Calculate offset relative to current window position
             this.dragOffset = {
                 x: e.clientX - currentX,
                 y: e.clientY - currentY
             };
-            
+
             document.addEventListener('mousemove', this.handleDrag);
             document.addEventListener('mouseup', this.handleDragEnd);
-            
+
             e.preventDefault();
         });
     }
-    
+
     handleDrag = e => {
         if (!this.isDragging) return;
-        
+
         const newX = e.clientX - this.dragOffset.x;
         const newY = e.clientY - this.dragOffset.y;
-        
+
         // Allow window to move mostly off-screen but keep 50px visible
         // Don't allow the top of the window to go above the top of the page
         const minVisiblePixels = 50;
@@ -406,35 +515,35 @@ class AddonWindow {
         const maxX = window.innerWidth - minVisiblePixels;
         const minY = 0; // Don't allow window top to go above page top
         const maxY = window.innerHeight - minVisiblePixels;
-        
-        this.x = Math.max(minX, Math.min(newX, maxX));
-        this.y = Math.max(minY, Math.min(newY, maxY));
-        
+
+        this.x = Math.max(minX, Math.min(newX, maxX)) + Math.random() * 50;
+        this.y = Math.max(minY, Math.min(newY, maxY)) + Math.random() * 50;
+
         this.element.style.left = `${this.x}px`;
         this.element.style.top = `${this.y}px`;
-        
+
         this.onMove(this.x, this.y);
     };
-    
+
     handleDragEnd = () => {
         this.isDragging = false;
         document.removeEventListener('mousemove', this.handleDrag);
         document.removeEventListener('mouseup', this.handleDragEnd);
     };
-    
+
     addResizeHandles () {
         const handles = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
-        
+
         handles.forEach(direction => {
             const handle = document.createElement('div');
             handle.className = `resize-handle resize-${direction}`;
-            
+
             const styles = {
                 position: 'absolute',
                 backgroundColor: 'transparent',
                 zIndex: '10'
             };
-            
+
             // Set position and cursor for each handle
             switch (direction) {
             case 'n':
@@ -510,23 +619,23 @@ class AddonWindow {
                 });
                 break;
             }
-            
+
             Object.assign(handle.style, styles);
-            
+
             handle.addEventListener('mousedown', e => {
                 e.stopPropagation();
                 this.startResize(e, direction);
             });
-            
+
             this.element.appendChild(handle);
         });
     }
-    
+
     startResize (e, direction) {
         this.isResizing = true;
         this.resizeDirection = direction;
         this.bringToFront();
-        
+
         const rect = this.element.getBoundingClientRect();
         this.resizeStart = {
             x: e.clientX,
@@ -536,25 +645,25 @@ class AddonWindow {
             left: rect.left,
             top: rect.top
         };
-        
+
         document.addEventListener('mousemove', this.handleResize);
         document.addEventListener('mouseup', this.handleResizeEnd);
-        
+
         e.preventDefault();
     }
-    
+
     handleResize = e => {
         if (!this.isResizing) return;
-        
+
         const deltaX = e.clientX - this.resizeStart.x;
         const deltaY = e.clientY - this.resizeStart.y;
         const direction = this.resizeDirection;
-        
+
         let newWidth = this.resizeStart.width;
         let newHeight = this.resizeStart.height;
         let newX = this.resizeStart.left;
         let newY = this.resizeStart.top;
-        
+
         // Calculate new dimensions based on resize direction
         if (direction.includes('e')) newWidth += deltaX;
         if (direction.includes('w')) {
@@ -566,17 +675,17 @@ class AddonWindow {
             newHeight -= deltaY;
             newY = this.resizeStart.top + deltaY;
         }
-        
+
         // Apply constraints
         const originalNewWidth = newWidth;
         const originalNewHeight = newHeight;
-        
+
         newWidth = Math.max(this.minWidth, newWidth);
         newHeight = Math.max(this.minHeight, newHeight);
-        
+
         if (this.maxWidth) newWidth = Math.min(this.maxWidth, newWidth);
         if (this.maxHeight) newHeight = Math.min(this.maxHeight, newHeight);
-        
+
         // Adjust position if size was constrained and we're resizing from west or north
         if (direction.includes('w') && newWidth !== originalNewWidth) {
             newX = this.resizeStart.left + (this.resizeStart.width - newWidth);
@@ -584,48 +693,48 @@ class AddonWindow {
         if (direction.includes('n') && newHeight !== originalNewHeight) {
             newY = this.resizeStart.top + (this.resizeStart.height - newHeight);
         }
-        
+
         // Update dimensions
         this.width = newWidth;
         this.height = newHeight;
         this.x = newX;
         this.y = newY;
-        
+
         this.element.style.width = `${newWidth}px`;
         this.element.style.height = `${newHeight}px`;
         this.element.style.left = `${newX}px`;
         this.element.style.top = `${newY}px`;
-        
+
         this.onResize(newWidth, newHeight);
     };
-    
+
     handleResizeEnd = () => {
         this.isResizing = false;
         document.removeEventListener('mousemove', this.handleResize);
         document.removeEventListener('mouseup', this.handleResizeEnd);
     };
-    
+
     addScrollbarStyling () {
         // Create a style element for custom scrollbars
         const style = document.createElement('style');
-        
+
         style.textContent = `
             .addon-window-content {
                 scrollbar-width: thin;
                 scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
             }
-            
+
             .addon-window-content::-webkit-scrollbar {
                 width: 12px;
                 height: 12px;
             }
-            
+
             .addon-window-content::-webkit-scrollbar-track {
                 background: rgba(0, 0, 0, 0.03);
                 border-radius: 6px;
                 margin: 2px;
             }
-            
+
             .addon-window-content::-webkit-scrollbar-thumb {
                 background: linear-gradient(135deg, 
                     rgba(0, 0, 0, 0.2) 0%, 
@@ -636,30 +745,30 @@ class AddonWindow {
                 transition: all 0.3s ease;
                 min-height: 20px;
             }
-            
+
             .addon-window-content::-webkit-scrollbar-thumb:hover {
                 background: linear-gradient(135deg, 
                     rgba(0, 0, 0, 0.35) 0%, 
                     rgba(0, 0, 0, 0.25) 100%);
                 background-clip: content-box;
             }
-            
+
             .addon-window-content::-webkit-scrollbar-thumb:active {
                 background: linear-gradient(135deg, 
                     rgba(0, 0, 0, 0.45) 0%, 
                     rgba(0, 0, 0, 0.35) 100%);
                 background-clip: content-box;
             }
-            
+
             .addon-window-content::-webkit-scrollbar-corner {
                 background: transparent;
             }
         `;
-        
+
         document.head.appendChild(style);
         this.scrollbarStyle = style; // Store reference for cleanup
     }
-    
+
     bringToFront () {
         const isOnTopTier = this.alwaysOnTop;
         const baseZ = isOnTopTier ? WINDOW_ON_TOP_Z_INDEX_BASE : WINDOW_Z_INDEX_BASE;
@@ -689,22 +798,26 @@ class AddonWindow {
         this.zIndex = isOnTopTier ? ++nextOnTopZIndex : ++nextZIndex;
         this.element.style.zIndex = this.zIndex;
     }
-    
+
     show () {
         this.isVisible = true;
         this.element.style.display = 'flex';
         this.bringToFront();
         return this;
     }
-    
+
     hide () {
         this.isVisible = false;
         this.element.style.display = 'none';
         return this;
     }
-    
+
     destroy (callOnClose = true) {
         this.hide();
+
+        // Cleanup timer resources
+        this.clearAutoCloseCountdown();
+
         if (callOnClose) {
             this.onClose();
         }
@@ -720,7 +833,7 @@ class AddonWindow {
     close () {
         this.destroy(true);
     }
-    
+
     minimize () {
         if (this.destroyOnMinimize) {
             this.onMinimize();
@@ -734,7 +847,7 @@ class AddonWindow {
         this.updateMaximizeButton();
         return this;
     }
-    
+
     restore () {
         if (this.isMaximized) {
             this.isMaximized = false;
@@ -750,19 +863,19 @@ class AddonWindow {
             }
             this.updateMaximizeButton();
         }
-        
+
         if (this.isMinimized) {
             this.isMinimized = false;
             this.show();
         }
-        
+
         this.onRestore();
         return this;
     }
-    
+
     maximize () {
         if (this.isMaximized) return this;
-        
+
         // Save current state
         this.savedState = {
             x: this.x,
@@ -770,24 +883,24 @@ class AddonWindow {
             width: this.width,
             height: this.height
         };
-        
+
         this.isMaximized = true;
         const menuBarHeight = getMenuBarHeight();
         this.x = 0;
         this.y = menuBarHeight;
         this.width = window.innerWidth;
         this.height = Math.max(0, window.innerHeight - menuBarHeight);
-        
+
         this.element.style.left = '0px';
         this.element.style.top = `${menuBarHeight}px`;
         this.element.style.width = '100vw';
         this.element.style.height = `${this.height}px`;
-        
+
         this.updateMaximizeButton();
         this.onMaximize();
         return this;
     }
-    
+
     toggleMaximize () {
         if (this.isMaximized) {
             this.restore();
@@ -796,7 +909,7 @@ class AddonWindow {
         }
         return this;
     }
-    
+
     setContent (content) {
         this.contentElement.innerHTML = '';
         if (typeof content === 'string') {
@@ -806,7 +919,7 @@ class AddonWindow {
         }
         return this;
     }
-    
+
     setTitle (newTitle) {
         this.title = newTitle;
         const titleElement = this.headerElement.querySelector('.addon-window-title');
@@ -815,11 +928,11 @@ class AddonWindow {
         }
         return this;
     }
-    
+
     getContentElement () {
         return this.contentElement;
     }
-    
+
     center () {
         this.x = (window.innerWidth - this.width) / 2;
         this.y = (window.innerHeight - this.height) / 2;
@@ -827,13 +940,13 @@ class AddonWindow {
         this.element.style.top = `${this.y}px`;
         return this;
     }
-    
+
     // Compatibility methods for external code
     focus () {
         this.bringToFront();
         return this;
     }
-    
+
     isClosed () {
         return !this.isVisible;
     }
@@ -844,28 +957,28 @@ const WindowManager = {
     createWindow (options) {
         return new AddonWindow(options);
     },
-    
+
     getWindow (id) {
         return activeWindows.get(id);
     },
-    
+
     getAllWindows () {
         return Array.from(activeWindows.values());
     },
-    
+
     closeWindow (id) {
         const window = activeWindows.get(id);
         if (window) {
             window.close();
         }
     },
-    
+
     closeAllWindows () {
         for (const window of activeWindows.values()) {
             window.close();
         }
     },
-    
+
     bringToFront (id) {
         const window = activeWindows.get(id);
         if (window) {

@@ -128,11 +128,20 @@ export default async function ({addon, console, msg}) {
     menuContainer.className = addon.tab.scratchClass('menu-bar_menu-bar-item', 'menu-bar_hoverable') + ' sa-workspace-tabs-menu-container';
 
     // Add icon
-    const menuIcon = newSvg(bookmarkIconSvg);
-    menuIcon.draggable = false;
-    menuIcon.width = 16;
-    menuIcon.height = 16;
-
+    //const menuIcon = newSvg(bookmarkIconSvg);
+    //menuIcon.draggable = false;
+    //menuIcon.width = 16;
+    //menuIcon.height = 16;
+    const menuIcon = document.createElement("video");
+    menuIcon.autoplay = true;
+    menuIcon.loop = true;
+    menuIcon.muted = true;
+    menuIcon.playsInline = true;
+    menuIcon.style = "width:50px";
+    const srcIcon = document.createElement("source");
+    srcIcon.src = "https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4";
+    srcIcon.type = "video/mp4";
+    menuIcon.appendChild(srcIcon);
   
     // Add text
     const menuText = document.createElement('span');

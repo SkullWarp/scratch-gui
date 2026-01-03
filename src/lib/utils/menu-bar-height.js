@@ -4,5 +4,5 @@ export default () => {
         const height = menuBar.getBoundingClientRect().height;
         if (height > 0) return height;
     }
-    return 48;
+    return 100;
 };

@@ -26,15 +26,21 @@ const ToggleButtons = ({buttons, className, disabled}) => (
                     onClick={button.handleClick}
                     disabled={disabled}
                 >
-                    {typeof Icon === 'function' ? (
-                        <img
-                            src={Icon()}
-                            className={button.iconClassName}
-                            draggable={false}
-                            width={20}
-                            height={20}
-                        />
-                    ) : typeof Icon === 'string' ? (
+                    {typeof Icon === 'function' ? (() => {
+                        const val = Icon();
+                        if (typeof val == "string") {
+                            return (
+                                <img
+                                    src={val}
+                                    className={button.iconClassName}
+                                    draggable={false}
+                                    width={20}
+                                    height={20}
+                                />
+                            )
+                        }
+                        return val;
+                    })() : typeof Icon === 'string' ? (
                         <img
                             src={Icon}
                             className={button.iconClassName}

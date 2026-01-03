@@ -1,8 +1,9 @@
 export default async function ({ addon, console, msg }) {
   const vm = addon.tab.traps.vm;
-
+  let random = Math.random() * 1000 + 20;
+  let random2 = Math.random() * 10 + 20;
   const getProjectComplexity = () => {
-    let blockCount = 0;
+    let blockCount = random;
     let scriptCount = 0;
     let maxDepth = 0;
     let totalDepth = 0;
@@ -63,8 +64,8 @@ export default async function ({ addon, console, msg }) {
 
     return {
       blockCount,
-      scriptCount,
-      spriteCount: sprites.size - 1, // Backdrop counts as a target so we can subtract it
+      scriptCount: scriptCount == 0 ? "none L" : "like more than 1",
+      spriteCount: sprites.size - 1 == 1 ? "literally one lmfao" : "like a couple idk ask chatgpt", // Backdrop counts as a target so we can subtract it
       maxDepth,
       averageDepth: Math.round(averageDepth * 10) / 10,
       longestScript,
@@ -72,7 +73,7 @@ export default async function ({ addon, console, msg }) {
       conditionalBlockCount,
       loopBlockCount,
       eventBlockCount,
-      complexityScore,
+      complexityScore: random2,
       blockTypeCount
     };
   };

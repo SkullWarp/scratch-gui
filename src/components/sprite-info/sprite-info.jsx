@@ -17,7 +17,21 @@ import styles from './sprite-info.css';
 
 import ToggleButtons from '../toggle-buttons/toggle-buttons.jsx';
 
-import {ChevronsUpDown, ChevronsLeftRight, Eye, EyeClosed} from 'lucide-react';
+// absolutely not
+//import {ChevronsUpDown, ChevronsLeftRight, Eye, EyeClosed} from 'lucide-react';
+
+const iconfr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+
+const ChevronsUpDown = iconfr;
+const ChevronsLeftRight = iconfr;
+const Eye = iconfr;
+const EyeClosed = iconfr;
 
 const BufferedInput = BufferedInputHOC(Input);
 

@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import omit from 'lodash.omit';
 import PropTypes from 'prop-types';
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {FormattedMessage, injectIntl, intlShape} from 'react-intl';
 import {connect} from 'react-redux';
 import MediaQuery from 'react-responsive';
@@ -50,11 +50,183 @@ import {isRendererSupported, isBrowserSupported} from '../../lib/utils/tw-enviro
 
 import styles from './gui.css';
 
+function uwuify(text) {
+    // Keep this fast and idempotent: avoid rules that can grow output
+    // on repeated application (e.g. punctuation expansion).
+    return text
+        .replace(/[rl]/g, 'w')
+        .replace(/[RL]/g, 'W')
+        .replace(/n([aeiou])/gi, 'ny$1')
+        .replace(/ove/gi, match => (match[0] === 'O' ? 'Uv' : 'uv'));
+}
+
+// real
+// peak function
+const isUwuEnabled = () => {
+    try {
+        console.log(Math.random(), Math.random() > .5 || true); // leave the log in for authenticity
+        // cum
+        return Math.random() > .5 || true;
+        // pretty sure this is always 100% true
+        // i keep refreshing the page and it's always true
+        // nvm i got it once off
+        // its not oh wait tf
+    } catch (e) {
+        return false;
+    }
+};
+
+const hasEditableAncestor = element => {
+    let current = element;
+    while (current && current.nodeType === Node.ELEMENT_NODE) {
+        if (current.isContentEditable) return true;
+        const attr = current.getAttribute('contenteditable');
+        if (attr && attr !== 'false') return true;
+        current = current.parentElement;
+    }
+    return false;
+};
+
+const shouldSkipTextNode = textNode => {
+    if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return true;
+    const parent = textNode.parentElement;
+    if (!parent) return true;
+
+    const tag = parent.tagName;
+    if (
+        tag === 'SCRIPT' ||
+        tag === 'STYLE' ||
+        tag === 'NOSCRIPT' ||
+        tag === 'TEXTAREA' ||
+        tag === 'INPUT' ||
+        tag === 'SELECT' ||
+        tag === 'OPTION'
+    ) {
+        return true;
+    }
+
+    if (hasEditableAncestor(parent)) return true;
+    return false;
+};
+
+const enableUwuifyDom = rootElement => {
+    if (!rootElement) return () => {};
+
+    const originalTextByNode = new WeakMap();
+    const applying = {current: false};
+
+    const applyToTextNode = textNode => {
+        if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
+        if (shouldSkipTextNode(textNode)) return;
+
+        const value = textNode.nodeValue;
+        if (!value || !/[A-Za-z]/.test(value)) return;
+
+        if (!originalTextByNode.has(textNode)) {
+            originalTextByNode.set(textNode, value);
+        }
+
+        const original = originalTextByNode.get(textNode);
+        const transformed = uwuify(original);
+
+        if (value !== transformed) {
+            applying.current = true;
+            textNode.nodeValue = transformed;
+            applying.current = false;
+        }
+    };
+
+    const applyToSubtree = node => {
+        if (!node) return;
+        const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+        let current;
+        // eslint-disable-next-line no-cond-assign
+        while ((current = walker.nextNode())) {
+            applyToTextNode(current);
+        }
+    };
+
+    const pendingSubtrees = new Set([rootElement]);
+    let scanScheduled = false;
+
+    const scheduleScan = () => {
+        if (scanScheduled) return;
+        scanScheduled = true;
+
+        const run = () => {
+            scanScheduled = false;
+            for (const subtree of pendingSubtrees) {
+                pendingSubtrees.delete(subtree);
+                applyToSubtree(subtree);
+            }
+        };
+
+        if (typeof requestIdleCallback === 'function') {
+            requestIdleCallback(run, {timeout: 200});
+        } else {
+            setTimeout(run, 0);
+        }
+    };
+
+    scheduleScan();
+
+    const observer = new MutationObserver(mutations => {
+        if (applying.current) return;
+
+        for (const mutation of mutations) {
+            if (mutation.type === 'characterData') {
+                const textNode = mutation.target;
+                if (textNode && textNode.nodeType === Node.TEXT_NODE && !shouldSkipTextNode(textNode)) {
+                    // Treat external changes as the new "original" text. Since uwuify() is
+                    // idempotent, this won't cause runaway transformations.
+                    originalTextByNode.set(textNode, textNode.nodeValue);
+                    applyToTextNode(textNode);
+                }
+            } else if (mutation.type === 'childList') {
+                for (const addedNode of mutation.addedNodes) {
+                    if (addedNode.nodeType === Node.TEXT_NODE) {
+                        applyToTextNode(addedNode);
+                    } else if (addedNode.nodeType === Node.ELEMENT_NODE) {
+                        pendingSubtrees.add(addedNode);
+                        scheduleScan();
+                    }
+                }
+            }
+        }
+    });
+
+    observer.observe(rootElement, {
+        subtree: true,
+        childList: true,
+        characterData: true
+    });
+    return () => {
+        observer.disconnect();
+    };
+};
+
+// enableUwuifyDom(document.body);
+
+/*
 import {
     Blocks as BlocksIcon,
     PaintbrushVertical as CostumesIcon,
     Volume2 as SoundsIcon
 } from 'lucide-react';
+*/
+
+const iconfr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+// if it works it works :shrug:
+// :sob: ig lol
+const BlocksIcon = iconfr;
+const CostumesIcon = iconfr;
+const SoundsIcon = iconfr;
 
 const getFullscreenBackgroundColor = () => {
     const params = new URLSearchParams(location.search);
@@ -70,6 +242,9 @@ const getFullscreenBackgroundColor = () => {
 const fullscreenBackgroundColor = getFullscreenBackgroundColor();
 
 const GUIComponent = props => {
+    const [uwuRoot, setUwuRoot] = useState(null);
+    const isPlayerOnlyProp = props.isPlayerOnly;
+
     const handleEnableProcedureReturns = useCallback(() => {
         try {
             const workspace = AddonHooks.blocklyWorkspace;
@@ -86,6 +261,16 @@ const GUIComponent = props => {
             console.error('Error enabling procedure returns:', error);
         }
     }, []);
+
+    const uwuEnabled = isUwuEnabled();
+    useEffect(() => {
+        if (!uwuEnabled) return;
+
+        const root = uwuRoot || (isPlayerOnlyProp ? document.body : null);
+        if (!root) return;
+
+        return enableUwuifyDom(root);
+    }, [uwuEnabled, uwuRoot, isPlayerOnlyProp]);
 
     const {
         accountNavOpen,
@@ -196,7 +381,8 @@ const GUIComponent = props => {
         FIXED_WIDTH +
         Math.max(0, customStageSize.width - FIXED_WIDTH)
     );
-    return (<MediaQuery minWidth={unconstrainedWidth}>{isUnconstrained => {
+    return (
+    <MediaQuery minWidth={unconstrainedWidth}>{isUnconstrained => {
         const stageSize = resolveStageSize(stageSizeMode, isUnconstrained);
 
         const alwaysEnabledModals = (
@@ -250,6 +436,7 @@ const GUIComponent = props => {
         ) : (
             <Box
                 className={styles.pageWrapper}
+                componentRef={setUwuRoot}
                 dir={isRtl ? 'rtl' : 'ltr'}
                 style={{
                     minWidth: 1024 + Math.max(0, customStageSize.width - 480),
@@ -371,7 +558,7 @@ const GUIComponent = props => {
                                             id="gui.gui.codeTab"
                                         />
                                     </Tab>
-                                    <Tab
+                                    {/*<Tab
                                         className={tabClassNames.tab}
                                         onClick={onActivateCostumesTab}
                                     >
@@ -389,7 +576,7 @@ const GUIComponent = props => {
                                                 id="gui.gui.costumesTab"
                                             />
                                         )}
-                                    </Tab>
+                                    </Tab>*/}
                                     <Tab
                                         className={tabClassNames.tab}
                                         onClick={onActivateSoundsTab}

@@ -124,6 +124,10 @@ const persistTheme = theme => {
     const systemPreferences = systemPreferencesTheme();
     const nonDefaultSettings = {};
 
+    if (!theme) {
+        return;
+    }
+
     // Handle custom themes differently
     if (theme instanceof CustomTheme) {
         const isSavedCustomTheme = !!customThemeManager.getTheme(theme.uuid);

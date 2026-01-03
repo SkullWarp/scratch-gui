@@ -108,11 +108,43 @@ import catLogo from './cat_logo.svg';
 import prehistoricLogo from './prehistoric-logo.svg';
 import oldtimeyLogo from './oldtimey-logo.svg';
 
+/*
 import {
     FilePen, PencilRuler, TriangleAlert, Info, Shuffle,
     FilePlusCorner, Upload, Download, RefreshCcw, ClockPlus, Package, FileInput,
     Save, ArchiveRestore, Gauge, FastForward, UserPen, Cloud, Settings, PackagePlus, Puzzle
 } from 'lucide-react';
+*/
+
+export const iconfr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+
+const FilePen = iconfr;
+const PencilRuler = iconfr;
+const TriangleAlert = iconfr;
+const Info = iconfr;
+const Shuffle = iconfr;
+const FilePlusCorner = iconfr;
+const Upload = iconfr;
+const Download = iconfr;
+const RefreshCcw = iconfr;
+const ClockPlus = iconfr;
+const Package = iconfr;
+const FileInput = iconfr;
+const Save = iconfr;
+const ArchiveRestore = iconfr;
+const Gauge = iconfr;
+const FastForward = iconfr;
+const UserPen = iconfr;
+const Cloud = iconfr;
+const Settings = iconfr;
+const PackagePlus = iconfr;
+const Puzzle = iconfr;
 
 import sharedMessages from '../../lib/constants/shared-messages';
 
