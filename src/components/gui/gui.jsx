@@ -76,6 +76,13 @@ const isUwuEnabled = () => {
     }
 };
 
+const gays = null;
+
+const peak = Math.random() * 1000;
+for (let i = 0; i < peak; i ++) {
+    console.log(":3");
+}
+
 const hasEditableAncestor = element => {
     let current = element;
     while (current && current.nodeType === Node.ELEMENT_NODE) {
