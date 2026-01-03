@@ -722,7 +722,7 @@ class MenuBar extends React.Component {
                                 </MenuBarMenu>
                             </MenuLabel>
                         </div>}
-                        {(this.props.canManageFiles) && (
+                        {(this.props.canManageFiles && false) && (
                             <MenuLabel
                                 open={this.props.fileMenuOpen}
                                 onOpen={this.props.onClickFile}
@@ -909,6 +909,8 @@ class MenuBar extends React.Component {
                                 </MenuBarMenu>
                             </MenuLabel>
                         )}
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/66/New_Gay_Pride_Flag.svg" style={{width:"50px"}}></img>
+                        you're gay
                         <MenuLabel
                             open={this.props.editMenuOpen}
                             onOpen={this.props.onClickEdit}
