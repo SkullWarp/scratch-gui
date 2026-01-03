@@ -14,7 +14,24 @@ import {applyTheme} from '../../lib/themes/themePersistance.js';
 import ChevronDown from './ChevronDown.jsx';
 import styles from './settings-menu.css';
 
-import {Check, Palette, CirclePlus, Download, FolderInput, Edit, Trash} from 'lucide-react';
+//import {Check, Palette, CirclePlus, Download, FolderInput, Edit, Trash} from 'lucide-react';
+
+const iconfr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+
+const Check = iconfr;
+const Palette = iconfr;
+const CirclePlus = iconfr;
+const Download = iconfr;
+const FolderInput = iconfr;
+const Edit = iconfr;
+const Trash = iconfr;
+
 import WindowManager from '../../addons/window-system/window-manager';
 import showAlert from '../../addons/window-system/alert';
 import ReactDOM from 'react-dom';

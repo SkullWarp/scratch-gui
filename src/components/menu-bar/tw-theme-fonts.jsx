@@ -14,7 +14,19 @@ import openMWFontsWindow from '../../lib/mw/open-mw-fonts-window.js';
 
 import styles from './settings-menu.css';
 
-import {BookType, Check, History} from 'lucide-react';
+//import {BookType, Check, History} from 'lucide-react';
+
+const iconfr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+
+const BookType = iconfr;
+const Check = iconfr;
+const History = iconfr;
 
 const FontListItem = ({family, onClick}) => (
     <div

@@ -16,13 +16,9 @@ import {Check} from 'lucide-react';
 
 const ThemeIcon = ({id}) => {
     return (
-        <svg
-            className={classNames(styles.icon, "lucide")}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            dangerouslySetInnerHTML={{ __html: GUI_MAP[id].icon }}
-        />
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
     );
 };
 
@@ -37,7 +33,10 @@ const ThemeMenuItem = props => (
                 className={classNames(styles.check, {[styles.selected]: props.isSelected})}
                 size={15}
             />
-            <ThemeIcon id={props.id} />
+            {/*<ThemeIcon id={props.id} />*/}
+            <video autoPlay loop muted playsinline style={{width:50}}>
+                <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+            </video>
             <span className={props.name}>
                 <FormattedMessage
                     defaultMessage="{theme}"
@@ -71,7 +70,10 @@ const GuiThemeMenu = ({
             className={styles.option}
             onClick={onOpen}
         >
-            <ThemeIcon id={theme.gui} />
+            {/*<ThemeIcon id={theme.gui} />*/}
+            <video autoPlay loop muted playsinline style={{width:50}}>
+                <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+            </video>
             <span className={styles.submenuLabel}>
                 <FormattedMessage
                     defaultMessage="Theme"

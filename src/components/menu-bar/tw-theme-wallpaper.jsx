@@ -12,7 +12,19 @@ import {setTheme} from '../../reducers/theme.js';
 import {applyTheme} from '../../lib/themes/themePersistance.js';
 import styles from './settings-menu.css';
 
-import {Check, Wallpaper, Trash} from 'lucide-react';
+//import {Check, Wallpaper, Trash} from 'lucide-react';
+
+const iconfr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+
+const Check = iconfr;
+const Wallpaper = iconfr;
+const Trash = iconfr;
 
 const WallpaperMenuItem = ({url, isSelected, onClick, onRemove}) => (
     <MenuItem onClick={onClick}>
@@ -61,7 +73,7 @@ const WallpaperMenuItem = ({url, isSelected, onClick, onRemove}) => (
                         onRemove(url);
                     }}
                 >
-                    <Trash size={14} className={styles.removeWallpaperIcon} style={{margin: '0'}} size={20} />
+                    <Trash className={styles.removeWallpaperIcon} style={{margin: '0'}} size={20} />
                 </button>
             ) : null}
         </div>

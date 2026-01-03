@@ -5,6 +5,15 @@ import React from 'react';
 import greenFlagIcon from './icon--green-flag.svg';
 import styles from './green-flag.css';
 
+
+const IconFr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+
 const GreenFlagComponent = function (props) {
     const {
         active,
@@ -14,7 +23,7 @@ const GreenFlagComponent = function (props) {
         ...componentProps
     } = props;
     return (
-        <img
+        <IconFr
             className={classNames(
                 className,
                 styles.greenFlag,

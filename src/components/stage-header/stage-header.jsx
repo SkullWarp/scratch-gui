@@ -26,6 +26,14 @@ import styles from './stage-header.css';
 
 import FullscreenAPI from '../../lib/api/fullscreen';
 
+const IconFr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+
 const messages = defineMessages({
     largeStageSizeMessage: {
         defaultMessage: 'Switch to large stage',
@@ -96,13 +104,7 @@ const StageHeaderComponent = function (props) {
                     className={styles.stageButton}
                     onClick={onOpenSettings}
                 >
-                    <img
-                        alt={props.intl.formatMessage(messages.openSettingsMessage)}
-                        className={styles.stageButtonIcon}
-                        draggable={false}
-                        src={settingsIcon}
-                        title={props.intl.formatMessage(messages.openSettingsMessage)}
-                    />
+                    {IconFr}
                 </Button>
             </div>
         ) : null;
@@ -113,11 +115,7 @@ const StageHeaderComponent = function (props) {
                     onClick={onSetStageUnFullScreen}
                     onKeyPress={onKeyPress}
                 >
-                    <Minimize
-                        alt={props.intl.formatMessage(messages.unFullScreenMessage)}
-                        className={styles.icon}
-                        title={props.intl.formatMessage(messages.fullscreenControl)}
-                    />
+                    <IconFr />
                 </Button>
             </div>
         ) : FullscreenAPI.available() ? (
@@ -126,11 +124,7 @@ const StageHeaderComponent = function (props) {
                     className={styles.stageButton}
                     onClick={onSetStageFullScreen}
                 >
-                    <Maximize
-                        alt={props.intl.formatMessage(messages.fullScreenMessage)}
-                        className={styles.stageButtonIcon}
-                        title={props.intl.formatMessage(messages.fullscreenControl)}
-                    />
+                    <IconFr />
                 </Button>
             </div>
         ) : null;
@@ -165,7 +159,7 @@ const StageHeaderComponent = function (props) {
                         buttons={[
                             {
                                 handleClick: onSetStageSmall,
-                                icon: smallStageIcon,
+                                icon: IconFr,
                                 iconClassName: styles.stageButtonIcon,
                                 isSelected: stageSizeMode === STAGE_SIZE_MODES.small,
                                 title: props.intl.formatMessage(messages.smallStageSizeMessage)
@@ -173,7 +167,7 @@ const StageHeaderComponent = function (props) {
                             ...(showFixedLargeSize ? [
                                 {
                                     handleClick: onSetStageLarge,
-                                    icon: largeStageIcon,
+                                    icon: IconFr,
                                     iconClassName: styles.stageButtonIcon,
                                     isSelected: stageSizeMode === STAGE_SIZE_MODES.large,
                                     title: props.intl.formatMessage(messages.largeStageSizeMessage)
@@ -181,7 +175,7 @@ const StageHeaderComponent = function (props) {
                             ] : []),
                             {
                                 handleClick: onSetStageFull,
-                                icon: showFixedLargeSize ? fullStageIcon : largeStageIcon,
+                                icon: IconFr,
                                 iconClassName: styles.stageButtonIcon,
                                 isSelected: stageSizeMode === STAGE_SIZE_MODES.full,
                                 title: props.intl.formatMessage(messages.fullStageSizeMessage)
@@ -211,11 +205,7 @@ const StageHeaderComponent = function (props) {
                                 className={styles.stageButton}
                                 onClick={onSetStageFullScreen}
                             >
-                                <Maximize
-                                    alt={props.intl.formatMessage(messages.fullStageSizeMessage)}
-                                    className={styles.icon}
-                                    title={props.intl.formatMessage(messages.fullscreenControl)}
-                                />
+                                <IconFr />
                             </Button>
                         </div>
                     </div>

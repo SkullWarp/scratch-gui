@@ -397,9 +397,23 @@ export default async function ({addon, console, msg}) {
         const controls = document.createElement('div');
         controls.className = 'sa-workspace-tabs-controls';
 
-        const exportImg = newSvg(folderUpIconSvg);
-        const importImg = newSvg(folderDownIconSvg);
-        const clearImg = newSvg(binIconSvg);
+        //const exportImg = newSvg(folderUpIconSvg);
+        //const importImg = newSvg(folderDownIconSvg);
+        //const clearImg = newSvg(binIconSvg);
+
+        const icn = document.createElement("video");
+        icn.autoplay = true;
+        icn.loop = true;
+        icn.muted = true;
+        icn.playsInline = true;
+        icn.style = "width:50px";
+        const srcIcon = document.createElement("source");
+        srcIcon.src = "https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4";
+        srcIcon.type = "video/mp4";
+        icn.appendChild(srcIcon);
+        const exportImg = icn;
+        const importImg = icn;
+        const clearImg = icn
     
         const exportBtn = document.createElement('button');
         exportBtn.className = 'sa-workspace-tabs-control-button';
@@ -712,7 +726,7 @@ export default async function ({addon, console, msg}) {
     // Create add bookmark button - keeping for compatibility but hiding
     const addTabButton = document.createElement('button');
     addTabButton.className = 'sa-workspace-tabs-add';
-    addTabButton.innerHTML = '+';
+    //addTabButton.innerHTML = '+';
     addTabButton.title = msg('add-bookmark-tooltip');
     addTabButton.style.display = 'none'; // Hide the old add button
 

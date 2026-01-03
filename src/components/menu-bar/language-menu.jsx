@@ -14,7 +14,18 @@ import styles from './settings-menu.css';
 
 import ChevronDown from './ChevronDown.jsx';
 
-import {Check, Globe} from 'lucide-react';
+//import {Check, Globe} from 'lucide-react';
+
+const iconfr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+
+const Check = iconfr;
+const Globe = iconfr;
 
 class LanguageMenu extends React.PureComponent {
     constructor (props) {

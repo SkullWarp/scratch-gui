@@ -17,6 +17,15 @@ import spriteIcon from '../action-menu/icon--sprite.svg';
 import surpriseIcon from '../action-menu/icon--surprise.svg';
 import searchIcon from '../action-menu/icon--search.svg';
 
+
+const iconfr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+
 const messages = defineMessages({
     addSpriteFromLibrary: {
         id: 'gui.spriteSelector.addSpriteFromLibrary',
@@ -114,11 +123,11 @@ const SpriteSelectorComponent = function (props) {
             />
             <ActionMenu
                 className={styles.addButton}
-                img={spriteIcon}
+                img={iconfr}
                 moreButtons={[
                     {
                         title: intl.formatMessage(messages.addSpriteFromFile),
-                        img: fileUploadIcon,
+                        img: iconfr,
                         onClick: onFileUploadClick,
                         fileAccept: '.svg, .png, .bmp, .jpg, .jpeg, .jfif, .webp, .sprite2, .sprite3, .gif',
                         fileChange: onSpriteUpload,
@@ -126,15 +135,15 @@ const SpriteSelectorComponent = function (props) {
                         fileMultiple: true
                     }, {
                         title: intl.formatMessage(messages.addSpriteFromSurprise),
-                        img: surpriseIcon,
+                        img: iconfr,
                         onClick: onSurpriseSpriteClick // TODO need real function for this
                     }, {
                         title: intl.formatMessage(messages.addSpriteFromPaint),
-                        img: paintIcon,
+                        img: iconfr,
                         onClick: onPaintSpriteClick // TODO need real function for this
                     }, {
                         title: intl.formatMessage(messages.addSpriteFromLibrary),
-                        img: searchIcon,
+                        img: iconfr,
                         onClick: onNewSpriteClick
                     }
                 ]}

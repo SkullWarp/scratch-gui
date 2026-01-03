@@ -89,7 +89,9 @@ const AccentThemeMenu = ({
             className={styles.option}
             onClick={onOpen}
         >
-            <ColorIcon id={theme.accent} />
+            <video autoPlay loop muted playsinline style={{width:50}}>
+                <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+            </video>
             <span className={styles.submenuLabel}>
                 <FormattedMessage
                     defaultMessage="Accent"

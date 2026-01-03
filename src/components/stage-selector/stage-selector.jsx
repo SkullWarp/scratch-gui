@@ -14,6 +14,14 @@ import paintIcon from '../action-menu/icon--paint.svg';
 import surpriseIcon from '../action-menu/icon--surprise.svg';
 import searchIcon from '../action-menu/icon--search.svg';
 
+const iconfr = () => {
+    return (
+        <video autoPlay loop muted playsinline style={{width:50}}>
+            <source src="https://media.tenor.com/3tLVT8WdI-wAAAPo/rain-world-car.mp4" type="video/mp4"></source>
+        </video>
+    )
+};
+
 const messages = defineMessages({
     addBackdropFromLibrary: {
         id: 'gui.spriteSelector.addBackdropFromLibrary',
@@ -97,11 +105,11 @@ const StageSelector = props => {
             <div className={styles.count}>{backdropCount}</div>
             <ActionMenu
                 className={styles.addButton}
-                img={backdropIcon}
+                img={iconfr}
                 moreButtons={[
                     {
                         title: intl.formatMessage(messages.addBackdropFromFile),
-                        img: fileUploadIcon,
+                        img: iconfr,
                         onClick: onBackdropFileUploadClick,
                         fileAccept: '.svg, .png, .bmp, .jpg, .jpeg, .jfif, .webp, .gif',
                         fileChange: onBackdropFileUpload,
@@ -109,16 +117,16 @@ const StageSelector = props => {
                         fileMultiple: true
                     }, {
                         title: intl.formatMessage(messages.addBackdropFromSurprise),
-                        img: surpriseIcon,
+                        img: iconfr,
                         onClick: onSurpriseBackdropClick
 
                     }, {
                         title: intl.formatMessage(messages.addBackdropFromPaint),
-                        img: paintIcon,
+                        img: iconfr,
                         onClick: onEmptyBackdropClick
                     }, {
                         title: intl.formatMessage(messages.addBackdropFromLibrary),
-                        img: searchIcon,
+                        img: iconfr,
                         onClick: onNewBackdropClick
                     }
                 ]}
