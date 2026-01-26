@@ -17,6 +17,7 @@ import _drag_drop from "../addons/drag-drop/_manifest_entry.js";
 import _debugger from "../addons/debugger/_manifest_entry.js";
 import _canvas_screenshot from "../addons/canvas-screenshot/_manifest_entry.js";
 import _pause from "../addons/pause/_manifest_entry.js";
+import _peak_ai_assistant from "../addons/peak-ai-assistant/_manifest_entry.js";
 import _mute_project from "../addons/mute-project/_manifest_entry.js";
 import _vol_slider from "../addons/vol-slider/_manifest_entry.js";
 import _clones from "../addons/clones/_manifest_entry.js";
@@ -105,6 +106,7 @@ export default {
   "debugger": _debugger,
   "canvas-screenshot": _canvas_screenshot,
   "pause": _pause,
+  "peak-ai-assistant": _peak_ai_assistant,
   "mute-project": _mute_project,
   "vol-slider": _vol_slider,
   "clones": _clones,

@@ -709,7 +709,7 @@ class MenuBar extends React.Component {
                         {
                             [styles[`main-menu-align-${this.props.theme.menuBarAlign || 'center'}`]]: true
                         }
-                    )}
+                    ) + " menubardumbass"}
                 >
                     <div className={styles.fileGroup}>
                         {this.props.errors.length > 0 && <div>

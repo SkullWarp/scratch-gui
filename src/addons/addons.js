@@ -17,6 +17,7 @@ const addons = [
     'debugger',
     'canvas-screenshot',
     'pause',
+    "peak-ai-assistant",
     'mute-project',
     'vol-slider',
     'clones',
