@@ -68,7 +68,7 @@ const applyThemeFonts = async fonts => {
     newFontStyleElement.textContent = `
         /* Theme Fonts - High Priority Overrides */
         * {
-            font-family: ${fontFamily} !important;
+            /*font-family: ${fontFamily} !important;*
         }
         
         /* Specific targets for better coverage */
@@ -82,12 +82,12 @@ const applyThemeFonts = async fonts => {
         .blocklyHtmlInput,
         button, input, textarea, select,
         .menu-bar, .menu-item {
-            font-family: ${fontFamily} !important;
+            /*font-family: ${fontFamily} !important;*/
         }
         
         /* SVG text elements in Blockly */
         text, tspan {
-            font-family: ${fontFamily} !important;
+            /*font-family: ${fontFamily} !important;*/
         }
     `;
 

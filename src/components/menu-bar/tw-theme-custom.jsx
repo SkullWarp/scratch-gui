@@ -33,7 +33,7 @@ const Edit = iconfr;
 const Trash = iconfr;
 
 import WindowManager from '../../addons/window-system/window-manager';
-import showAlert from '../../addons/window-system/alert';
+import showAlert from '../../../../alert.js';
 import ReactDOM from 'react-dom';
 
 const startDrag = (index, e, dragging, setGradientColors, previewRef) => {

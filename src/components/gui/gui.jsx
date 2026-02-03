@@ -248,6 +248,8 @@ const getFullscreenBackgroundColor = () => {
 
 const fullscreenBackgroundColor = getFullscreenBackgroundColor();
 
+
+
 const GUIComponent = props => {
     const [uwuRoot, setUwuRoot] = useState(null);
     const isPlayerOnlyProp = props.isPlayerOnly;

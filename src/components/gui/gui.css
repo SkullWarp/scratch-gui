@@ -81,7 +81,10 @@
     height: 80%;
     top: -4px;
 
-    border-radius: 10px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 28px;
+    border-bottom-right-radius: 18px;
     border: 1px solid $ui-black-transparent;
 
     font-size: 0.75rem;
@@ -341,8 +344,17 @@ $fade-out-distance: 15px;
     background-color: white;
 }
 
-
-
 * {
     opacity: 99% !important;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 28px;
+    border-bottom-right-radius: 18px;
+    border: 1px magenta dotted;
+    text-align: right;
+    padding-right: 10px;
+    font-size: 10px;
+    background-color: rgba(255, 0, 255, 0.1);
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif !important;
+    resize: both;
 }
